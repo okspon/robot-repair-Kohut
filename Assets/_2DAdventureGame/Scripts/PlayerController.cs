@@ -3,31 +3,31 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    // Поле для створення дії вводу
+    // ГЏГ®Г«ГҐ Г¤Г«Гї Г±ГІГўГ®Г°ГҐГ­Г­Гї Г¤ВіВї ГўГўГ®Г¤Гі
     public InputAction MoveAction;
 
-    // Швидкість руху персонажа
+    // ГГўГЁГ¤ГЄВіГ±ГІГј Г°ГіГµГі ГЇГҐГ°Г±Г®Г­Г Г¦Г 
     public float speed = 3.0f;
 
     void Start()
     {
-        // Обов'язково вмикаємо дію вводу при старті гри
+        // ГЋГЎГ®Гў'ГїГ§ГЄГ®ГўГ® ГўГ¬ГЁГЄГ ВєГ¬Г® Г¤ВіГѕ ГўГўГ®Г¤Гі ГЇГ°ГЁ Г±ГІГ Г°ГІВі ГЈГ°ГЁ
         MoveAction.Enable();
     }
 
     void Update()
     {
-        // Зчитуємо напрямок (Vector2: X та Y) від натиснутих клавіш
+        // Г‡Г·ГЁГІГіВєГ¬Г® Г­Г ГЇГ°ГїГ¬Г®ГЄ (Vector2: X ГІГ  Y) ГўВіГ¤ Г­Г ГІГЁГ±Г­ГіГІГЁГµ ГЄГ«Г ГўВіГё
         Vector2 move = MoveAction.ReadValue<Vector2>();
-
-        // Отримуємо поточну позицію
+        Debug.Log(move);
+        // ГЋГІГ°ГЁГ¬ГіВєГ¬Г® ГЇГ®ГІГ®Г·Г­Гі ГЇГ®Г§ГЁГ¶ВіГѕ
         Vector2 position = transform.position;
 
-        // Додаємо зміщення з урахуванням швидкості та Time.deltaTime (плавний рух при будь-якому FPS)
+        // Г„Г®Г¤Г ВєГ¬Г® Г§Г¬ВіГ№ГҐГ­Г­Гї Г§ ГіГ°Г ГµГіГўГ Г­Г­ГїГ¬ ГёГўГЁГ¤ГЄГ®Г±ГІВі ГІГ  Time.deltaTime (ГЇГ«Г ГўГ­ГЁГ© Г°ГіГµ ГЇГ°ГЁ ГЎГіГ¤Гј-ГїГЄГ®Г¬Гі FPS)
         position.x = position.x + speed * move.x * Time.deltaTime;
         position.y = position.y + speed * move.y * Time.deltaTime;
 
-        // Застосовуємо нову позицію
+        // Г‡Г Г±ГІГ®Г±Г®ГўГіВєГ¬Г® Г­Г®ГўГі ГЇГ®Г§ГЁГ¶ВіГѕ
         transform.position = position;
     }
 }
