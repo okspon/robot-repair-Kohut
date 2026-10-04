@@ -3,32 +3,37 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    // ГЏГ®Г«ГҐ Г¤Г«Гї Г±ГІГўГ®Г°ГҐГ­Г­Гї Г¤ВіВї ГўГўГ®Г¤Гі
+    // Поле для створення дії вводу
     public InputAction MoveAction;
 
-    // ГГўГЁГ¤ГЄВіГ±ГІГј Г°ГіГµГі ГЇГҐГ°Г±Г®Г­Г Г¦Г 
+    // Швидкість руху персонажа
     public float speed = 3.0f;
+
+    // Оголошуємо змінні для фізики та напрямку
+    Rigidbody2D rigidbody2d;
+    Vector2 move;
 
     void Start()
     {
-        // ГЋГЎГ®Гў'ГїГ§ГЄГ®ГўГ® ГўГ¬ГЁГЄГ ВєГ¬Г® Г¤ВіГѕ ГўГўГ®Г¤Гі ГЇГ°ГЁ Г±ГІГ Г°ГІВі ГЈГ°ГЁ
+        // Обов'язково вмикаємо дію вводу при старті гри
         MoveAction.Enable();
+
+        // Отримуємо компонент Rigidbody2D з персонажа
+        rigidbody2d = GetComponent<Rigidbody2D>();
     }
 
     void Update()
     {
-        // Г‡Г·ГЁГІГіВєГ¬Г® Г­Г ГЇГ°ГїГ¬Г®ГЄ (Vector2: X ГІГ  Y) ГўВіГ¤ Г­Г ГІГЁГ±Г­ГіГІГЁГµ ГЄГ«Г ГўВіГё
-        Vector2 move = MoveAction.ReadValue<Vector2>();
-        Debug.Log(move);
-        // ГЋГІГ°ГЁГ¬ГіВєГ¬Г® ГЇГ®ГІГ®Г·Г­Гі ГЇГ®Г§ГЁГ¶ВіГѕ
-        Vector2 position = transform.position;
+        // Зчитуємо напрямок вводу щокадру
+        move = MoveAction.ReadValue<Vector2>();
+    }
 
-        // Г„Г®Г¤Г ВєГ¬Г® Г§Г¬ВіГ№ГҐГ­Г­Гї Г§ ГіГ°Г ГµГіГўГ Г­Г­ГїГ¬ ГёГўГЁГ¤ГЄГ®Г±ГІВі ГІГ  Time.deltaTime (ГЇГ«Г ГўГ­ГЁГ© Г°ГіГµ ГЇГ°ГЁ ГЎГіГ¤Гј-ГїГЄГ®Г¬Гі FPS)
-        position.x = position.x + speed * move.x * Time.deltaTime;
-        position.y = position.y + speed * move.y * Time.deltaTime;
+    void FixedUpdate()
+    {
+        // Розраховуємо нову позицію з урахуванням швидкості та кроку фізики
+        Vector2 position = (Vector2)rigidbody2d.position + move * speed * Time.deltaTime;
 
-        // Г‡Г Г±ГІГ®Г±Г®ГўГіВєГ¬Г® Г­Г®ГўГі ГЇГ®Г§ГЁГ¶ВіГѕ
-        transform.position = position;
+        // Рухаємо Rigidbody2D через фізичний рушій (щоб уникнути тремтіння біля стін)
+        rigidbody2d.MovePosition(position);
     }
 }
-
