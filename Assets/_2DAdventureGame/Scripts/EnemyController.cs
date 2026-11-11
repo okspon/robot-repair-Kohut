@@ -1,4 +1,5 @@
 using UnityEngine;
+using Beginner2D; // Додано для доступу до GameManager
 
 public class EnemyController : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class EnemyController : MonoBehaviour
 
     // Прапорець стану ворога (поламаний чи відремонтований)
     bool broken = true;
+    public bool isBroken { get { return broken; } }
 
     void Start()
     {
@@ -96,6 +98,32 @@ public class EnemyController : MonoBehaviour
         if (animator != null)
         {
             animator.SetTrigger("Fixed"); // Запускаємо тригер "Fixed"
+        }
+
+        // Перевіряємо, чи всі роботи відремонтовані
+        CheckIfAllRobotsFixed();
+    }
+
+    private void CheckIfAllRobotsFixed()
+    {
+        EnemyController[] allRobots = FindObjectsByType<EnemyController>(FindObjectsSortMode.None);
+
+        bool allFixed = true;
+        foreach (EnemyController robot in allRobots)
+        {
+            if (robot.isBroken)
+            {
+                allFixed = false;
+                break;
+            }
+        }
+
+        if (allFixed)
+        {
+            if (GameManager.instance != null)
+            {
+                GameManager.instance.WinGame();
+            }
         }
     }
 }

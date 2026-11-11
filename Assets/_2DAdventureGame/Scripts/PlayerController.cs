@@ -1,11 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Beginner2D;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Input Actions")]
     public InputAction MoveAction;
     public InputAction LaunchAction;
+    public InputAction TalkAction;
 
     [Header("Movement Settings")]
     public float speed = 3.0f;
@@ -22,7 +24,6 @@ public class PlayerController : MonoBehaviour
     private bool isInvincible;
     private float damageCooldown;
 
-    // Components
     private Rigidbody2D rigidbody2d;
     private Animator animator;
 
@@ -30,6 +31,7 @@ public class PlayerController : MonoBehaviour
     {
         MoveAction.Enable();
         LaunchAction.Enable();
+        TalkAction.Enable();
 
         rigidbody2d = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -39,22 +41,18 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Зчитування руху
         move = MoveAction.ReadValue<Vector2>();
 
-        // Оновлення напрямку погляду (Look Direction)
         if (!Mathf.Approximately(move.x, 0.0f) || !Mathf.Approximately(move.y, 0.0f))
         {
             moveDirection.Set(move.x, move.y);
             moveDirection.Normalize();
         }
 
-        // Передача параметрів в Аніматор
         animator.SetFloat("Look X", moveDirection.x);
         animator.SetFloat("Look Y", moveDirection.y);
         animator.SetFloat("Speed", move.magnitude);
 
-        // Таймер безсмертя після отримання шкоди
         if (isInvincible)
         {
             damageCooldown -= Time.deltaTime;
@@ -64,16 +62,33 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Запуск снаряда
         if (LaunchAction.WasPressedThisFrame())
         {
             Launch();
+        }
+
+        if (TalkAction.WasPressedThisFrame())
+        {
+            RaycastHit2D hit = Physics2D.Raycast(
+                rigidbody2d.position + Vector2.up * 0.2f,
+                moveDirection,
+                1.5f,
+                LayerMask.GetMask("NPC")
+            );
+
+            if (hit.collider != null)
+            {
+                NonPlayerCharacter npc = hit.collider.GetComponent<NonPlayerCharacter>();
+                if (npc != null)
+                {
+                    npc.DisplayDialogue();
+                }
+            }
         }
     }
 
     void FixedUpdate()
     {
-        // Фізичне переміщення
         Vector2 position = (Vector2)rigidbody2d.position + move * speed * Time.deltaTime;
         rigidbody2d.MovePosition(position);
     }
@@ -92,24 +107,27 @@ public class PlayerController : MonoBehaviour
         }
 
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
+        UIHandler.instance.SetHealthValue(currentHealth / (float)maxHealth);
         Debug.Log(currentHealth + "/" + maxHealth);
+
+        if (currentHealth <= 0)
+        {
+            GameManager.instance.LoseGame();
+        }
     }
 
     void Launch()
     {
-        // Створення снаряда із зсувом по висоті
         GameObject projectileObject = Instantiate(
             projectilePrefab,
             rigidbody2d.position + Vector2.up * 1.0f,
             Quaternion.identity
         );
 
-        // Запуск снаряда у напрямку погляду персонажа
         Projectile projectile = projectileObject.GetComponent<Projectile>();
         if (projectile != null)
         {
             projectile.Launch(moveDirection, 5f);
-            Debug.Log("Напрямок: " + moveDirection);
         }
 
         animator.SetTrigger("Launch");
